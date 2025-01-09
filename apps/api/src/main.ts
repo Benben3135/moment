@@ -1,28 +1,20 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
-  
-  // Enable CORS
-  app.enableCors();
-  
-  // Global validation pipe
-  app.useGlobalPipes(new ValidationPipe());
-  
-  // Swagger setup
-  const config = new DocumentBuilder()
-    .setTitle('Moment API')
-    .setDescription('The Moment API description')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
 
-  await app.listen(3001);
+  app.enableCors({
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['content-type', 'svix-id', 'svix-timestamp', 'svix-signature','authorization'],
+  });
+
+  const port = process.env.PORT || 4000;
+  await app.listen(port, '0.0.0.0', () => {
+    logger.log(`Application is running on: http://localhost:${port}`);
+  });
 }
 bootstrap();

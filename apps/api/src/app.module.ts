@@ -1,39 +1,39 @@
-// src/app.module.ts
-import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { WinstonModule } from 'nest-winston';
-import configuration from './config/configuration';
-import { winstonConfig } from './config/winston.config';
-import { AuthMiddleware } from './middleware/auth.middleware';
-import { UserModule } from './user/user.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
+import { UsersModule } from './user/user.module';
 import { JournalModule } from './journal/journal.module';
 import { MeditationModule } from './meditation/meditation.module';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from './auth/auth.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [configuration],
       isGlobal: true,
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('database.uri'),
+        uri: configService.get<string>('MONGODB_URI'),
       }),
       inject: [ConfigService],
     }),
-    WinstonModule.forRoot(winstonConfig),
-    UserModule,
+    WebhooksModule,
+    UsersModule,
     JournalModule,
     MeditationModule,
+    HttpModule,
+    AuthModule,
+    UsersModule,
+    JwtModule.register({
+      publicKey: process.env.CLERK_JWT_PUBLIC_KEY,
+      verifyOptions: {
+        algorithms: ['RS256'],
+      },
+    }),
   ],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .exclude('auth/(.*)')
-      .forRoutes('*');
-  }
-}
+export class AppModule {}

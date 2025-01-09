@@ -1,0 +1,17 @@
+type JournalEntry {
+  _id: ID!
+  title: String!
+  content: String!
+  tags: [String!]
+  createdAt: String!
+}
+
+type MeditationStats {
+  totalSessions: Int!
+  totalMinutes: Int!
+}
+
+type Query {
+  journalEntries: [JournalEntry!]!
+  meditationStats: MeditationStats!
+}

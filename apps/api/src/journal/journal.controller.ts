@@ -1,21 +1,27 @@
-// src/journal/journal.controller.ts
-import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { JournalService } from './journal.service';
-import { CreateJournalEntryDto } from './dto/create-entry.dto';
+import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('journal')
+@UseGuards(JwtAuthGuard)
 export class JournalController {
   constructor(private readonly journalService: JournalService) {}
 
   @Post()
-  async createEntry(@Req() req: any, @Body() createEntryDto: CreateJournalEntryDto) {
-    const userId = req.user.id;
-    return this.journalService.create(userId, createEntryDto);
+  create(
+    @CurrentUser() userId: string,
+    @Body() createEntryDto: CreateJournalEntryDto
+  ) {
+    return this.journalService.create({
+      ...createEntryDto,
+      userId
+    });
   }
 
   @Get()
-  async getUserEntries(@Req() req: any) {
-    const userId = req.user.id;
-    return this.journalService.findUserEntries(userId);
+  findAll(@CurrentUser() userId: string) {
+    return this.journalService.findAllByUser(userId);
   }
 }

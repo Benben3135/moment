@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+const createNextIntlPlugin = require('next-intl/plugin');
 
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next/dist.types').NextConfig} */
+const nextConfig = {
+  // Your existing Next.js configuration
 };
 
-export default nextConfig;
+module.exports = createNextIntlPlugin()(nextConfig);

@@ -1,41 +1,41 @@
-// frontend/src/app/dashboard/page.tsx
 "use client"
 
-import { useEffect, useState } from 'react';
-import { useApi } from '@/lib/api/client';
-import { MeditationStats } from '@/types/meditation';
-import { JournalEntry } from '@/types/journal';
+import { useQuery } from '@tanstack/react-query'
+import { request } from 'graphql-request'
+import { MeditationStats } from '@/types/meditation'
+import { JournalEntry } from '@/types/journal'
+
+// GraphQL queries
+const DASHBOARD_QUERY = `
+  query GetDashboardData {
+    journalEntries {
+      _id
+      title
+      content
+      tags
+      createdAt
+    }
+    meditationStats {
+      totalSessions
+      totalMinutes
+    }
+  }
+`
+
+// Types for the GraphQL response
+interface DashboardData {
+  journalEntries: JournalEntry[]
+  meditationStats: MeditationStats
+}
 
 export default function DashboardPage() {
-  const { getApiClient } = useApi();
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
-  const [meditationStats, setMeditationStats] = useState<MeditationStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const api = await getApiClient();
-        
-        // Fetch journal entries
-        const journalResponse = await api.journal.getAll();
-        setJournalEntries(journalResponse.data);
-        
-        // Fetch meditation stats
-        const statsResponse = await api.meditation.getStats();
-        setMeditationStats(statsResponse.data);
-      } catch (err) {
-        setError('Failed to load dashboard data');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const { data, isLoading, error } = useQuery<DashboardData>({
+    queryKey: ['dashboard'],
+    queryFn: async () => {
+      const response = await request('/api/graphql', DASHBOARD_QUERY)
+      return response as DashboardData
+    }
+  })
 
   if (isLoading) {
     return (
@@ -44,18 +44,20 @@ export default function DashboardPage() {
           <div className="text-center">Loading...</div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
     return (
       <div className="container mx-auto p-6">
         <div className="bg-red-50 text-red-600 p-4 rounded-lg">
-          {error}
+          Failed to load dashboard data
         </div>
       </div>
-    );
+    )
   }
+
+  const { journalEntries, meditationStats } = data || { journalEntries: [], meditationStats: null }
 
   return (
     <div className="container mx-auto p-6">
@@ -104,5 +106,5 @@ export default function DashboardPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

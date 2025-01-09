@@ -1,0 +1,22 @@
+{
+    "settings": {
+      "theme": "Tema",
+      "language": "Idioma",
+      "notifications": "Notificaciones",
+      "meditation": {
+        "title": "Configuración de Meditación",
+        "duration": "Duración Predeterminada (minutos)",
+        "reminders": "Recordatorios Diarios",
+        "reminderTime": "Hora del Recordatorio"
+      },
+      "languages": {
+        "en": "Inglés",
+        "es": "Español",
+        "fr": "Francés"
+      },
+      "themes": {
+        "light": "Claro",
+        "dark": "Oscuro"
+      }
+    }
+  }

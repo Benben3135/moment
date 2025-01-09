@@ -1,21 +1,16 @@
-import { IsNumber, IsString, IsObject, IsOptional } from 'class-validator';
+import { IsNumber, IsString, IsOptional, Min, Max } from 'class-validator';
 
 export class CreateSessionDto {
   @IsNumber()
+  @Min(1)
+  @Max(1440) // Max 24 hours in minutes
   duration: number;
-
-  @IsString()
-  type: string;
 
   @IsString()
   @IsOptional()
   notes?: string;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
-  metrics?: {
-    focusScore?: number;
-    calmScore?: number;
-    completion: boolean;
-  };
+  technique?: string;
 }

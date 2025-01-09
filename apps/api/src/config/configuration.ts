@@ -1,35 +1,26 @@
 // src/config/configuration.ts
 export default () => ({
     port: parseInt(process.env.PORT, 10) || 3001,
+    app: {
+      port: parseInt(process.env.PORT, 10) || 4000,
+      baseUrl: process.env.BASE_URL || 'http://localhost:4000',
+    },
     database: {
-      uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/moment',
+      uri: process.env.MONGO_DB_CONNECTION_STRING,
+      options: {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        retryWrites: true,
+        w: 'majority',
+      },
     },
     clerk: {
       secretKey: process.env.CLERK_SECRET_KEY,
       publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
     },
+    jwt: {
+      secret: process.env.JWT_SECRET,
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    },
   });
   
-  // src/config/winston.config.ts
-  import { WinstonModuleOptions } from 'nest-winston';
-  import { format, transports } from 'winston';
-  
-  export const winstonConfig: WinstonModuleOptions = {
-    transports: [
-      new transports.Console({
-        format: format.combine(
-          format.timestamp(),
-          format.colorize(),
-          format.simple(),
-        ),
-      }),
-      new transports.File({
-        filename: 'logs/error.log',
-        level: 'error',
-        format: format.combine(
-          format.timestamp(),
-          format.json(),
-        ),
-      }),
-    ],
-  };
